@@ -204,6 +204,7 @@
       <div class="tabs">
         <button class="tab active" id="tab-fundamental">Fundamental</button>
         <button class="tab" id="tab-indicator">Indicator</button>
+        <button class="tab" id="tab-model">Model</button>
       </div>
       <div class="tab-content" id="tab-content">
         <!-- Tab-specific content will be rendered here -->
@@ -212,8 +213,12 @@
 
     <div class="right-panel">
       <h2 id="right-title">Output</h2>
-      <div class="content-area">
+      <div class="content-area" id="right-content">
         <pre id="output" class="placeholder-text">Enter a stock symbol and click a tab to view data.</pre>
+        <h3 id="bull-title" style="display:none; color:#e94560;">Bull</h3>
+        <pre id="bull-response" class="placeholder-text" style="display:none;">Bull response will appear here.</pre>
+        <h3 id="bear-title" style="display:none; color:#e94560;">Bear</h3>
+        <pre id="bear-response" class="placeholder-text" style="display:none;">Bear response will appear here.</pre>
       </div>
     </div>
   </div>
@@ -241,6 +246,18 @@
     function renderTabContent() {
       const tabContent = document.getElementById('tab-content');
       const rightTitle = document.getElementById('right-title');
+      const output = document.getElementById('output');
+      const bullTitle = document.getElementById('bull-title');
+      const bearTitle = document.getElementById('bear-title');
+      const bullResp = document.getElementById('bull-response');
+      const bearResp = document.getElementById('bear-response');
+
+      // Reset right panel visibility
+      output.style.display = 'block';
+      bullTitle.style.display = 'none';
+      bearTitle.style.display = 'none';
+      bullResp.style.display = 'none';
+      bearResp.style.display = 'none';
 
       if (currentTab === 'fundamental') {
         rightTitle.textContent = 'Fundamentals';
@@ -249,7 +266,7 @@
           <p style="color: #aaa; margin-bottom: 15px;">View fundamental data including market cap, PE ratio, dividends, and more.</p>
           <button id="load-fundamental">Load Fundamentals</button>
         `;
-      } else {
+      } else if (currentTab === 'indicator') {
         rightTitle.textContent = 'Indicator';
         tabContent.innerHTML = `
           <h3>Technical Indicators</h3>
@@ -259,6 +276,24 @@
           </select>
           <button id="load-indicator">Load Indicator</button>
         `;
+      } else if (currentTab === 'model') {
+        rightTitle.textContent = 'Model';
+        // hide generic output
+        output.style.display = 'none';
+        // show placeholders for responses
+        bullTitle.style.display = 'block';
+        bearTitle.style.display = 'block';
+        bullResp.style.display = 'block';
+        bearResp.style.display = 'block';
+        tabContent.innerHTML = `
+          <h3>Model</h3>
+          <label for="model-indicator-select">Select Indicators:</label>
+          <select id="model-indicator-select" multiple style="height:200px;">
+            ${indicators.map(ind => `<option value="${ind.value}">${ind.label}</option>`).join('')}
+          </select>
+          <button id="ask-llm">Ask LLM</button>
+        `;
+        document.getElementById('ask-llm').addEventListener('click', handleAskLLM);
       }
 
       attachTabListeners();
@@ -312,8 +347,46 @@
       renderTabContent();
     });
 
+    document.getElementById('tab-model').addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-model').classList.add('active');
+      currentTab = 'model';
+      renderTabContent();
+    });
+
     // Initial render
     renderTabContent();
+
+    // Handler for Ask LLM button (model tab)
+    async function handleAskLLM() {
+      const selected = Array.from(document.getElementById('model-indicator-select').selectedOptions).map(o => o.value);
+      if (selected.length === 0) {
+        alert('Select at least one indicator');
+        return;
+      }
+      const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+      const bullResp = document.getElementById('bull-response');
+      const bearResp = document.getElementById('bear-response');
+      bullResp.textContent = 'Loading...';
+      bearResp.textContent = 'Loading...';
+      try {
+        const bull = await fetch(`${API_BASE}/model/bull`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symbol, indicators: selected })
+        }).then(r => r.text());
+        const bear = await fetch(`${API_BASE}/model/bear`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symbol, indicators: selected })
+        }).then(r => r.text());
+        bullResp.textContent = bull;
+        bearResp.textContent = bear;
+      } catch (e) {
+        bullResp.textContent = `Error: ${e.message}`;
+        bearResp.textContent = `Error: ${e.message}`;
+      }
+    }
   </script>
 </body>
 </html>

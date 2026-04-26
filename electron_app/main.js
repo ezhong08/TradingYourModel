@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { app, BrowserWindow, ipcMain } = require('electron');
 
 let mainWindow;
@@ -31,9 +32,9 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
-  startApiServer().then(createWindow);
-});
+  app.whenReady().then(() => {
+    startApiServer().then(createWindow);
+  });
 
 app.on('window-all-closed', () => {
   if (apiServer) apiServer.kill();
@@ -47,3 +48,4 @@ app.on('activate', () => {
 });
 
 const path = require('path');
+// Note: All UI logic runs in the renderer process (index.html). The main process should not access the DOM.
