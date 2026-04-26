@@ -1,0 +1,14 @@
+{
+  "name": "tradingyourmodel-electron",
+  "version": "1.0.0",
+  "description": "Electron app for TradingYourModel",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
