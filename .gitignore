@@ -1,5 +1,8 @@
 .env
 electron_app/node_modules
-tradingyourmodel
 tradingyourmodel.egg-info
 node_modules
+tradingyourmodel/__pycache__
+tradingyourmodel/dataflows/__pycache__
+tradingyourmodel/dataflows/data_cache
+tradingyourmodel/llm/clients
