@@ -110,8 +110,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     comment = get_bull_comment(symbol, indicators, close_price, extra_info)
                 else:
                     comment = get_bear_comment(symbol, indicators, close_price, extra_info)
-                # Combine comment and indicator data for response to UI
-                full_response = comment + "\n\nIndicator Data:\n" + "\n".join(indicator_results)
+                # Return only the comment without indicator data
+                full_response = comment # + "\n\nIndicator Data:\n" + "\n".join(indicator_results)
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
                 self.end_headers()
