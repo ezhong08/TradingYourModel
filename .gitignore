@@ -5,6 +5,6 @@ node_modules
 tradingyourmodel/__pycache__
 tradingyourmodel/dataflows/__pycache__
 tradingyourmodel/dataflows/data_cache
-tradingyourmodel/llm/clients
+tradingyourmodel/llm/clients/__pycache__
 .vscode/launch.json
 .vscode/tasks.json
