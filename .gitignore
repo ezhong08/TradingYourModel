@@ -6,3 +6,5 @@ tradingyourmodel/__pycache__
 tradingyourmodel/dataflows/__pycache__
 tradingyourmodel/dataflows/data_cache
 tradingyourmodel/llm/clients
+.vscode/launch.json
+.vscode/tasks.json
