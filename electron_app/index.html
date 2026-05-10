@@ -6,8 +6,8 @@
   <title>TradingYourModel</title>
   <style>
     * {
-      margin: 0;
-      padding: 0;
+      margin:0;
+      padding:0;
       box-sizing: border-box;
     }
 
@@ -78,7 +78,7 @@
 
     /* Main Content */
     .main-content {
-      flex: 1;
+      flex:1;
       display: flex;
       overflow: hidden;
     }
@@ -98,7 +98,7 @@
     }
 
     .tab {
-      flex: 1;
+      flex:1;
       padding: 12px 20px;
       text-align: center;
       cursor: pointer;
@@ -120,7 +120,7 @@
     }
 
     .tab-content {
-      flex: 1;
+      flex:1;
       padding: 20px;
       overflow-y: auto;
     }
@@ -225,7 +225,6 @@
 
   <script>
     let currentTab = 'fundamental';
-    const API_BASE = 'http://localhost:8765';
 
     const indicators = [
       { value: 'rsi', label: 'RSI' },
@@ -319,14 +318,20 @@
 
       try {
         if (currentTab === 'fundamental') {
-          const response = await fetch(`${API_BASE}/fundamentals/${symbol}`);
-          const result = await response.text();
-          output.textContent = result;
+          const result = await window.api.getFundamentals(symbol);
+          if (result.success) {
+            output.textContent = result.data;
+          } else {
+            output.textContent = `Error: ${result.error}`;
+          }
         } else {
           const indicator = document.getElementById('indicator-select').value;
-          const response = await fetch(`${API_BASE}/indicator/${symbol}/${indicator}`);
-          const result = await response.text();
-          output.textContent = result;
+          const result = await window.api.getStockStatsIndicator(symbol, indicator);
+          if (result.success) {
+            output.textContent = result.data;
+          } else {
+            output.textContent = `Error: ${result.error}`;
+          }
         }
       } catch (e) {
         output.textContent = `Error: ${e.message}`;
@@ -370,18 +375,12 @@
       bullResp.textContent = 'Loading...';
       bearResp.textContent = 'Loading...';
       try {
-        const bull = await fetch(`${API_BASE}/model/bull`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ symbol, indicators: selected })
-        }).then(r => r.text());
-        const bear = await fetch(`${API_BASE}/model/bear`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ symbol, indicators: selected })
-        }).then(r => r.text());
-        bullResp.textContent = bull;
-        bearResp.textContent = bear;
+        const [bullResult, bearResult] = await Promise.all([
+          window.api.modelBull(symbol, selected),
+          window.api.modelBear(symbol, selected)
+        ]);
+        bullResp.textContent = bullResult.success ? bullResult.data : `Error: ${bullResult.error}`;
+        bearResp.textContent = bearResult.success ? bearResult.data : `Error: ${bearResult.error}`;
       } catch (e) {
         bullResp.textContent = `Error: ${e.message}`;
         bearResp.textContent = `Error: ${e.message}`;
