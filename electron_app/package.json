@@ -4,8 +4,9 @@
   "description": "Electron app for TradingYourModel",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --enable-logging"
+    "start": "cd frontend && npm run build && cd .. && electron .",
+    "dev": "cd frontend && npm run build && cd .. && electron . --enable-logging",
+    "build-frontend": "cd frontend && npm run build"
   },
   "dependencies": {
     "dotenv": "^17.4.2"

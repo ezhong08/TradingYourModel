@@ -145,7 +145,7 @@ export default function LeftPanel({
         <Tab label="Model" value="model" />
       </Tabs>
 
-      <Box sx={{ flex: 1, p: 2, overflowY: "auto" }}>
+      <Box sx={{ flex: 1, p: 3, overflowY: "auto", width: "100%" }}>
         {currentTab === "fundamental" && (
           <>
             <Typography
@@ -208,7 +208,7 @@ export default function LeftPanel({
             >
               Model
             </Typography>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+            <FormControl size="small" sx={{ mb: 2, minWidth: 220 }}>
               <InputLabel>Select Indicators</InputLabel>
               <Select
                 multiple
@@ -224,7 +224,21 @@ export default function LeftPanel({
                     )
                     .join(", ")
                 }
-                sx={{ maxHeight: 200 }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 500,
+                    },
+                  },
+                  anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "left",
+                  },
+                  transformOrigin: {
+                    vertical: "top",
+                    horizontal: "left",
+                  },
+                }}
               >
                 {INDICATORS.map((ind: Indicator) => (
                   <MenuItem key={ind.value} value={ind.value}>

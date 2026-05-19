@@ -9,3 +9,4 @@ tradingyourmodel/llm/clients/__pycache__
 .vscode/launch.json
 .vscode/tasks.json
 electron_app/dist
+electron_app/frontend/tsconfig.tsbuildinfo

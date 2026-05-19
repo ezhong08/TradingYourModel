@@ -1,4 +1,4 @@
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 
 interface TopBarProps {
   symbol: string;
