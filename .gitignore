@@ -8,3 +8,4 @@ tradingyourmodel/dataflows/data_cache
 tradingyourmodel/llm/clients/__pycache__
 .vscode/launch.json
 .vscode/tasks.json
+electron_app/dist
