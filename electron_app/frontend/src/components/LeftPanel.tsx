@@ -250,7 +250,12 @@ export default function LeftPanel({
                 ))}
               </Select>
             </FormControl>
-            <Button variant="contained" color="primary" onClick={handleAskLLM}>
+            <Button
+              sx={{ ml: 4 }}
+              variant="contained"
+              color="primary"
+              onClick={handleAskLLM}
+            >
               Ask LLM
             </Button>
           </>
