@@ -49,7 +49,7 @@ def handle_get_indicator(symbol, indicator, curr_date=None, look_back_days=30):
         return {"success": False, "error": str(e)}
 
 
-def handle_model_request(symbol, indicators, model_type):
+def handle_model_request(symbol, indicators, model_type, include_fundamental=False):
     """Get LLM bull/bear comment."""
     try:
         # Get latest close price
@@ -72,11 +72,19 @@ def handle_model_request(symbol, indicators, model_type):
         # Prepare extra info string for LLM
         extra_info = " | ".join(indicator_results)
 
+        # Fetch fundamentals if checkbox is checked
+        fundamental_info = None
+        if include_fundamental:
+            try:
+                fundamental_info = get_fundamentals(symbol.upper())
+            except Exception:
+                fundamental_info = "Error fetching fundamentals"
+
         # Call LLM
         if model_type == "bull":
-            comment = get_bull_comment(symbol.upper(), indicators, close_price, extra_info)
+            comment = get_bull_comment(symbol.upper(), indicators, close_price, extra_info, fundamental_info)
         else:
-            comment = get_bear_comment(symbol.upper(), indicators, close_price, extra_info)
+            comment = get_bear_comment(symbol.upper(), indicators, close_price, extra_info, fundamental_info)
 
         return {"success": True, "data": comment}
     except Exception as e:
@@ -112,14 +120,16 @@ def main():
                 raise ValueError("Symbol and indicators required")
             symbol = sys.argv[2]
             indicators = json.loads(sys.argv[3])
-            result = handle_model_request(symbol, indicators, "bull")
+            include_fundamental = sys.argv[4].lower() == 'true' if len(sys.argv) > 4 else False
+            result = handle_model_request(symbol, indicators, "bull", include_fundamental)
 
         elif command == "model_bear":
             if len(sys.argv) < 4:
                 raise ValueError("Symbol and indicators required")
             symbol = sys.argv[2]
             indicators = json.loads(sys.argv[3])
-            result = handle_model_request(symbol, indicators, "bear")
+            include_fundamental = sys.argv[4].lower() == 'true' if len(sys.argv) > 4 else False
+            result = handle_model_request(symbol, indicators, "bear", include_fundamental)
 
         else:
             result = {"success": False, "error": f"Unknown command: {command}"}

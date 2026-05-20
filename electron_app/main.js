@@ -85,18 +85,18 @@ ipcMain.handle('get_stock_stats_indicators_window', async (event, symbol, indica
   }
 });
 
-ipcMain.handle('model_bull', async (event, symbol, indicators) => {
+ipcMain.handle('model_bull', async (event, symbol, indicators, includeFundamental) => {
   try {
-    const result = await callPythonBridge(['model_bull', symbol, JSON.stringify(indicators)]);
+    const result = await callPythonBridge(['model_bull', symbol, JSON.stringify(indicators), String(includeFundamental)]);
     return result;
   } catch (error) {
     return { success: false, error: error.message };
   }
 });
 
-ipcMain.handle('model_bear', async (event, symbol, indicators) => {
+ipcMain.handle('model_bear', async (event, symbol, indicators, includeFundamental) => {
   try {
-    const result = await callPythonBridge(['model_bear', symbol, JSON.stringify(indicators)]);
+    const result = await callPythonBridge(['model_bear', symbol, JSON.stringify(indicators), String(includeFundamental)]);
     return result;
   } catch (error) {
     return { success: false, error: error.message };

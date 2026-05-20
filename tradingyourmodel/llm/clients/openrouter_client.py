@@ -71,7 +71,7 @@ def _post(payload: dict) -> str:
     # Extract the assistant message content
     return resp_data["choices"][0]["message"]["content"].strip()
 
-def _build_prompt(symbol: str, indicators: List[str], sentiment: str, close_price: float = None, extra_info: str = None) -> str:
+def _build_prompt(symbol: str, indicators: List[str], sentiment: str, close_price: float = None, extra_info: str = None, fundamental_info: str = None) -> str:
     """Create a prompt describing the request.
 
     Parameters
@@ -82,24 +82,31 @@ def _build_prompt(symbol: str, indicators: List[str], sentiment: str, close_pric
         List of indicator names selected by the user.
     sentiment: str
         Either "bull" or "bear" – determines the tone of the analysis.
+    close_price: float, optional
+        Latest close price.
+    extra_info: str, optional
+        Additional technical indicator data.
+    fundamental_info: str, optional
+        Stock fundamental data.
     """
     ind_list = ", ".join(indicators) if indicators else "none"
     price_part = f" The latest close price is {close_price:.2f}." if close_price is not None else ""
     extra_part = f" Additional indicator data: {extra_info}." if extra_info else ""
+    fundamental_part = f" Company fundamentals: {fundamental_info}." if fundamental_info else ""
     return (
         f"You are a financial analyst. Provide a concise {sentiment.upper()} "
         f"comment for the stock {symbol.upper()} based on the following technical "
-        f"indicators: {ind_list}.{price_part}{extra_part} Only return the comment without any extra "
+        f"indicators: {ind_list}.{price_part}{extra_part}{fundamental_part} Only return the comment without any extra "
         "explanations."
     )
 
-def get_bull_comment(symbol: str, indicators: List[str], close_price: float = None, extra_info: str = None) -> str:
+def get_bull_comment(symbol: str, indicators: List[str], close_price: float = None, extra_info: str = None, fundamental_info: str = None) -> str:
     """Return a bullish comment for the given symbol and indicators.
 
     This function builds a system prompt that asks the model to act bullish.
     """
     system_prompt = "You are a bullish financial analyst."
-    user_prompt = _build_prompt(symbol, indicators, "bull", close_price, extra_info)
+    user_prompt = _build_prompt(symbol, indicators, "bull", close_price, extra_info, fundamental_info)
     payload = {
         # "model" will be injected in _post() from the OPENROUTER_MODEL env var if not provided
         "messages": [
@@ -109,11 +116,11 @@ def get_bull_comment(symbol: str, indicators: List[str], close_price: float = No
     }
     return _post(payload)
 
-def get_bear_comment(symbol: str, indicators: List[str], close_price: float = None, extra_info: str = None) -> str:
+def get_bear_comment(symbol: str, indicators: List[str], close_price: float = None, extra_info: str = None, fundamental_info: str = None) -> str:
     """Return a bearish comment for the given symbol and indicators.
     """
     system_prompt = "You are a bearish financial analyst."
-    user_prompt = _build_prompt(symbol, indicators, "bear", close_price, extra_info)
+    user_prompt = _build_prompt(symbol, indicators, "bear", close_price, extra_info, fundamental_info)
     payload = {
         # "model" will be injected in _post() from the OPENROUTER_MODEL env var if not provided
         "messages": [

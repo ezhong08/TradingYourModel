@@ -33,8 +33,16 @@ export interface ElectronAPI {
     currDate?: string,
     lookBackDays?: number,
   ) => Promise<ApiResult>;
-  modelBull: (symbol: string, indicators: string[]) => Promise<ApiResult>;
-  modelBear: (symbol: string, indicators: string[]) => Promise<ApiResult>;
+  modelBull: (
+    symbol: string,
+    indicators: string[],
+    includeFundamental?: boolean,
+  ) => Promise<ApiResult>;
+  modelBear: (
+    symbol: string,
+    indicators: string[],
+    includeFundamental?: boolean,
+  ) => Promise<ApiResult>;
 }
 
 declare global {

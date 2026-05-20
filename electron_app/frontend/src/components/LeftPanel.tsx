@@ -39,6 +39,7 @@ export default function LeftPanel({
   const [selectedIndicators, setSelectedIndicators] = useState<string[]>([
     "rsi",
   ]);
+  const [includeFundamental, setIncludeFundamental] = useState<boolean>(false);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: TabValue) => {
     setCurrentTab(newValue);
@@ -95,8 +96,8 @@ export default function LeftPanel({
     onLoading();
     try {
       const [bullResult, bearResult] = await Promise.all([
-        window.api.modelBull(symbol, selectedIndicators),
-        window.api.modelBear(symbol, selectedIndicators),
+        window.api.modelBull(symbol, selectedIndicators, includeFundamental),
+        window.api.modelBear(symbol, selectedIndicators, includeFundamental),
       ]);
       onDataLoaded(
         "Model",
@@ -116,7 +117,7 @@ export default function LeftPanel({
         `Error: ${(e as Error).message}`,
       );
     }
-  }, [symbol, selectedIndicators, onDataLoaded, onLoading]);
+  }, [symbol, selectedIndicators, includeFundamental, onDataLoaded, onLoading]);
 
   return (
     <Box
@@ -208,6 +209,24 @@ export default function LeftPanel({
             >
               Model
             </Typography>
+            <FormControl sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  color: "text.secondary",
+                }}
+              >
+                <Checkbox
+                  size="small"
+                  checked={includeFundamental}
+                  onChange={(e) => setIncludeFundamental(e.target.checked)}
+                />
+                <span>Fundamental</span>
+              </Typography>
+            </FormControl>
             <FormControl size="small" sx={{ mb: 2, minWidth: 220 }}>
               <InputLabel>Select Indicators</InputLabel>
               <Select
