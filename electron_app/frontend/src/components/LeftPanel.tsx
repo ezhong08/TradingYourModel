@@ -23,6 +23,7 @@ interface LeftPanelProps {
     output: string,
     bullOutput?: string,
     bearOutput?: string,
+    recommendOutput?: string,
   ) => void;
   onLoading: () => void;
 }
@@ -99,20 +100,74 @@ export default function LeftPanel({
         window.api.modelBull(symbol, selectedIndicators, includeFundamental),
         window.api.modelBear(symbol, selectedIndicators, includeFundamental),
       ]);
-      onDataLoaded(
-        "Model",
-        "",
-        bullResult.success
+
+      // Parse the JSON-encoded payload from each result
+      let bullComment = "";
+      let bearComment = "";
+      let closePrice: number | null = null;
+      let indicatorData: string | null = null;
+      let fundamentalInfo: string | null = null;
+
+      const parseAux = (result: typeof bullResult) => {
+        if (!result.success || !result.data) return null;
+        try {
+          return JSON.parse(result.data);
+        } catch {
+          // Legacy format – plain string comment
+          return null;
+        }
+      };
+
+      const bullAux = parseAux(bullResult);
+      const bearAux = parseAux(bearResult);
+
+      if (bullAux) {
+        bullComment = bullAux.comment ?? bullResult.data ?? "";
+        closePrice = bullAux.close_price ?? closePrice;
+        indicatorData = bullAux.indicator_data ?? null;
+        fundamentalInfo = bullAux.fundamental_info ?? null;
+      } else {
+        bullComment = bullResult.success
           ? (bullResult.data ?? "No data")
-          : `Error: ${bullResult.error}`,
-        bearResult.success
+          : `Error: ${bullResult.error}`;
+      }
+
+      if (bearAux) {
+        bearComment = bearAux.comment ?? bearResult.data ?? "";
+        closePrice = bearAux.close_price ?? closePrice;
+        indicatorData = bearAux.indicator_data ?? indicatorData;
+        fundamentalInfo = bearAux.fundamental_info ?? fundamentalInfo;
+      } else {
+        bearComment = bearResult.success
           ? (bearResult.data ?? "No data")
-          : `Error: ${bearResult.error}`,
-      );
+          : `Error: ${bearResult.error}`;
+      }
+
+      // Now call the recommendation step
+      let recommendText: string | undefined;
+      try {
+        const recommendResult = await window.api.modelRecommend(
+          symbol,
+          selectedIndicators,
+          closePrice,
+          indicatorData,
+          fundamentalInfo,
+          bullComment,
+          bearComment,
+        );
+        recommendText = recommendResult.success
+          ? (recommendResult.data ?? "No recommendation data")
+          : `Error: ${recommendResult.error}`;
+      } catch (e) {
+        recommendText = `Error: ${(e as Error).message}`;
+      }
+
+      onDataLoaded("Model", "", bullComment, bearComment, recommendText);
     } catch (e) {
       onDataLoaded(
         "Model",
         "",
+        `Error: ${(e as Error).message}`,
         `Error: ${(e as Error).message}`,
         `Error: ${(e as Error).message}`,
       );

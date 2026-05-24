@@ -103,6 +103,24 @@ ipcMain.handle('model_bear', async (event, symbol, indicators, includeFundamenta
   }
 });
 
+ipcMain.handle('model_recommend', async (event, symbol, indicators, closePrice, indicatorData, fundamentalInfo, bullComment, bearComment) => {
+  try {
+    const result = await callPythonBridge([
+      'model_recommend',
+      symbol,
+      JSON.stringify(indicators),
+      closePrice === null || closePrice === undefined ? 'None' : String(closePrice),
+      indicatorData || 'None',
+      fundamentalInfo || 'None',
+      bullComment || 'None',
+      bearComment || 'None',
+    ]);
+    return result;
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 app.whenReady().then(() => {
   createWindow();
 });

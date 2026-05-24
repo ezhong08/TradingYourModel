@@ -43,6 +43,15 @@ export interface ElectronAPI {
     indicators: string[],
     includeFundamental?: boolean,
   ) => Promise<ApiResult>;
+  modelRecommend: (
+    symbol: string,
+    indicators: string[],
+    closePrice: number | null,
+    indicatorData: string | null,
+    fundamentalInfo: string | null,
+    bullComment: string | null,
+    bearComment: string | null,
+  ) => Promise<ApiResult>;
 }
 
 declare global {

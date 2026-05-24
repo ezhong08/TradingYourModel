@@ -6,6 +6,7 @@ interface RightPanelProps {
   isPlaceholder: boolean;
   bullOutput?: string;
   bearOutput?: string;
+  recommendOutput?: string;
 }
 
 export default function RightPanel({
@@ -14,6 +15,7 @@ export default function RightPanel({
   isPlaceholder,
   bullOutput,
   bearOutput,
+  recommendOutput,
 }: RightPanelProps) {
   return (
     <Box
@@ -83,9 +85,34 @@ export default function RightPanel({
                     wordBreak: "break-word",
                     color: isPlaceholder ? "text.secondary" : "text.primary",
                     fontStyle: isPlaceholder ? "italic" : "normal",
+                    mb: 2,
                   }}
                 >
                   {bearOutput}
+                </Typography>
+              </>
+            )}
+            {recommendOutput !== undefined && (
+              <>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ color: "success.main", mb: 1, fontWeight: "bold" }}
+                >
+                  Recommendation
+                </Typography>
+                <Typography
+                  component="pre"
+                  sx={{
+                    fontFamily: "'Courier New', monospace",
+                    fontSize: "0.85rem",
+                    lineHeight: 1.5,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    color: isPlaceholder ? "text.secondary" : "text.primary",
+                    fontStyle: isPlaceholder ? "italic" : "normal",
+                  }}
+                >
+                  {recommendOutput}
                 </Typography>
               </>
             )}

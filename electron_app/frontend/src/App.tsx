@@ -14,18 +14,21 @@ export default function App() {
   const [isPlaceholder, setIsPlaceholder] = useState(true);
   const [bullOutput, setBullOutput] = useState<string | undefined>();
   const [bearOutput, setBearOutput] = useState<string | undefined>();
+  const [recommendOutput, setRecommendOutput] = useState<string | undefined>();
 
   const handleDataLoaded = (
     title: string,
     data: string,
     bull?: string,
     bear?: string,
+    recommend?: string,
   ) => {
     setRightTitle(title);
     setOutput(data);
     setIsPlaceholder(false);
     setBullOutput(bull);
     setBearOutput(bear);
+    setRecommendOutput(recommend);
   };
 
   const handleLoading = () => {
@@ -33,6 +36,7 @@ export default function App() {
     setIsPlaceholder(false);
     setBullOutput(undefined);
     setBearOutput(undefined);
+    setRecommendOutput(undefined);
   };
 
   return (
@@ -58,6 +62,7 @@ export default function App() {
             isPlaceholder={isPlaceholder}
             bullOutput={bullOutput}
             bearOutput={bearOutput}
+            recommendOutput={recommendOutput}
           />
         </Box>
       </Box>
