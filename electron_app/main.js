@@ -16,7 +16,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
 
   if (process.argv.includes('--enable-logging')) {
     mainWindow.webContents.openDevTools();
@@ -85,18 +85,36 @@ ipcMain.handle('get_stock_stats_indicators_window', async (event, symbol, indica
   }
 });
 
-ipcMain.handle('model_bull', async (event, symbol, indicators) => {
+ipcMain.handle('model_bull', async (event, symbol, indicators, includeFundamental) => {
   try {
-    const result = await callPythonBridge(['model_bull', symbol, JSON.stringify(indicators)]);
+    const result = await callPythonBridge(['model_bull', symbol, JSON.stringify(indicators), String(includeFundamental)]);
     return result;
   } catch (error) {
     return { success: false, error: error.message };
   }
 });
 
-ipcMain.handle('model_bear', async (event, symbol, indicators) => {
+ipcMain.handle('model_bear', async (event, symbol, indicators, includeFundamental) => {
   try {
-    const result = await callPythonBridge(['model_bear', symbol, JSON.stringify(indicators)]);
+    const result = await callPythonBridge(['model_bear', symbol, JSON.stringify(indicators), String(includeFundamental)]);
+    return result;
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('model_recommend', async (event, symbol, indicators, closePrice, indicatorData, fundamentalInfo, bullComment, bearComment) => {
+  try {
+    const result = await callPythonBridge([
+      'model_recommend',
+      symbol,
+      JSON.stringify(indicators),
+      closePrice === null || closePrice === undefined ? 'None' : String(closePrice),
+      indicatorData || 'None',
+      fundamentalInfo || 'None',
+      bullComment || 'None',
+      bearComment || 'None',
+    ]);
     return result;
   } catch (error) {
     return { success: false, error: error.message };

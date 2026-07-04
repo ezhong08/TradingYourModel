@@ -86,14 +86,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                 close_price = None
                 if not hist.empty:
                     close_price = hist['Close'].iloc[-1]
-                # Get LLM comment with close price
-                if self.path == '/model/bull':
-                    comment = get_bull_comment(symbol, data.get('indicators', []), close_price)
-                else:
-                    comment = get_bear_comment(symbol, data.get('indicators', []), close_price)
 
                 # Gather indicator data for the selected indicators
-                symbol = data.get('symbol', '').upper()
                 indicators = data.get('indicators', [])
                 today = datetime.now().strftime('%Y-%m-%d')
                 indicator_results = []
@@ -105,13 +99,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                         indicator_results.append(f"{ind}: Error fetching data")
                 # Prepare extra info string for LLM
                 extra_info = " | ".join(indicator_results)
-                # Call LLM with extra indicator info
+                # Call LLM with close price and indicator data
                 if self.path == '/model/bull':
                     comment = get_bull_comment(symbol, indicators, close_price, extra_info)
                 else:
                     comment = get_bear_comment(symbol, indicators, close_price, extra_info)
                 # Return only the comment without indicator data
-                full_response = comment # + "\n\nIndicator Data:\n" + "\n".join(indicator_results)
+                full_response = comment
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
                 self.end_headers()
