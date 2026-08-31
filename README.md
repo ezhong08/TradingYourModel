@@ -90,34 +90,48 @@ Run with `python electron_app/server.py --port 8765`.
 
 ### Setup
 
-1. **Install the Python package** (from the repo root):
+1. **Create and activate a virtual environment** (from the repo root):
+
+   ```powershell
+   # Windows (PowerShell)
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+   ```bash
+   # macOS / Linux
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. **Install the Python package and dependencies** (with the venv active):
 
    ```bash
    pip install -e .
    ```
 
-2. **Install Node dependencies**:
+3. **Install Node dependencies**:
 
    ```bash
    cd electron_app && npm install
    cd frontend && npm install
    ```
 
-3. **Create a `.env` file in the repo root**:
+4. **Create a `.env` file in the repo root**:
 
    ```bash
    OPENROUTER_API_KEY=your_key_here
    OPENROUTER_MODEL=openai/gpt-3.5-turbo   # optional; this is the default
    ```
 
-4. **Run the app** (builds the frontend, then launches Electron):
+5. **Run the app** (builds the frontend, then launches Electron):
 
    ```bash
    cd electron_app
    npm start          # or: npm run dev   (opens DevTools)
    ```
 
-`python` must be on `PATH` — the main process spawns it directly.
+The virtual environment must be **active** in the terminal where you run `npm start` — the Electron main process spawns `python` directly, so `python` must resolve to the venv (where the dependencies are installed).
 
 ## Future Enhancements
 
