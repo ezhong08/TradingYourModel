@@ -24,6 +24,9 @@ from typing import List, Optional
 # OpenRouter endpoint – using the chat completions API
 BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 
+# Number of attempts to retry an empty (null) model response before failing.
+_MAX_ATTEMPTS = 2
+
 def _get_api_key() -> str:
     """Retrieve the OpenRouter API key from the environment.
 
@@ -58,19 +61,35 @@ def _post(payload: dict) -> str:
     model = os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo")
     payload.setdefault("model", model)
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        BASE_URL,
-        data=data,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {_get_api_key()}",
-            "HTTP-Referer": "https://github.com/ezhong08/TradingYourModel",
-        },
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {_get_api_key()}",
+        "HTTP-Referer": "https://github.com/ezhong08/TradingYourModel",
+    }
+
+    # Some models (e.g. DeepSeek via OpenRouter) intermittently return
+    # `content: null` (or an empty string) on an otherwise successful request,
+    # which previously crashed on `.strip()`. Retry a couple of times before
+    # giving up.
+    last_finish_reason = None
+    for _ in range(_MAX_ATTEMPTS):
+        req = urllib.request.Request(BASE_URL, data=data, headers=headers)
+        with urllib.request.urlopen(req) as resp:
+            resp_data = json.load(resp)
+        choices = resp_data.get("choices") or []
+        if not choices:
+            last_finish_reason = "no choices"
+            continue
+        message = choices[0].get("message") or {}
+        content = message.get("content")
+        if content:
+            return content.strip()
+        last_finish_reason = choices[0].get("finish_reason")
+
+    raise RuntimeError(
+        f"OpenRouter returned empty content after {_MAX_ATTEMPTS} attempts "
+        f"(finish_reason={last_finish_reason!r}). Please retry."
     )
-    with urllib.request.urlopen(req) as resp:
-        resp_data = json.load(resp)
-    # Extract the assistant message content
-    return resp_data["choices"][0]["message"]["content"].strip()
 
 def _build_prompt(symbol: str, indicators: List[str], sentiment: str, close_price: float = None, extra_info: str = None, fundamental_info: str = None) -> str:
     """Create a prompt describing the request.
